@@ -1,7 +1,4 @@
-import pandas as pd
-import plotly.express as px
 import streamlit as st
-import os
 from ranking_by_action import show_ranking_by_action
 from ranking_by_position import show_ranking_by_position
 from player_search import show_player_search

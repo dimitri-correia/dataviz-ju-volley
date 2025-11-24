@@ -1,15 +1,13 @@
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
+DATASET_PATH = "dataset_vnl_men_2024"
+
+
 def show_ranking_by_position():
-    """
-    Display rankings based on player positions
-    Note: Position ranking algorithm to be implemented in future
-    """
+    """Display rankings based on player positions"""
     st.header("Classement par position")
     
-    # Position selection dropdown
     position = st.selectbox(
         "Choisir une position",
         ["Setter", "Outside Hitter", "Middle Blocker", "Opposite", "Libero"]
@@ -18,7 +16,6 @@ def show_ranking_by_position():
     st.info(f"Classement pour la position: {position}")
     st.warning("⚠️ L'algorithme de classement par position sera implémenté prochainement.")
     
-    # Placeholder for future implementation
     st.markdown("""
     ### À venir:
     - Algorithme de notation par position
@@ -33,7 +30,6 @@ def show_ranking_by_position():
     - **Libero**: Libéro
     """)
     
-    # Load players dataset as preview
     st.subheader("Aperçu des joueurs")
-    df_players = pd.read_csv("dataset_vnl_men_2024/Players.csv", encoding='latin-1')
+    df_players = pd.read_csv(f"{DATASET_PATH}/Players.csv")
     st.dataframe(df_players.head(10))
