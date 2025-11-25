@@ -1,23 +1,11 @@
-import pandas as pd
 import streamlit as st
 
-DATASET_PATH = "dataset_vnl_men_2024"
-
-# Define stat categories and their corresponding CSV files
-STAT_CATEGORIES = {
-    "⚔️ Attack Stats": "Attackers.csv",
-    "🛡️ Block Stats": "Blockers.csv",
-    "🤿 Dig Stats": "Diggers.csv",
-    "📥 Receive Stats": "Receivers.csv",
-    "🎯 Scoring Stats": "Scorers.csv",
-    "🏐 Serve Stats": "Servers.csv",
-    "🤝 Setter Stats": "Setters.csv"
-}
+from data_loader import STAT_CATEGORIES, load_players, load_stat_file
 
 
 def show_player_search():
     """Display player search functionality with all related data"""
-    players_df = pd.read_csv(f"{DATASET_PATH}/Players.csv")
+    players_df = load_players()
     player_list = sorted(players_df['Name'].unique().tolist())
     
     selected_player = st.selectbox(
@@ -46,7 +34,7 @@ def show_player_search():
     # Display stats from each category
     has_stats = False
     for category_name, filename in STAT_CATEGORIES.items():
-        df = pd.read_csv(f"{DATASET_PATH}/{filename}")
+        df = load_stat_file(filename)
         player_data = df[df['Name'] == selected_player]
         
         if player_data.empty:

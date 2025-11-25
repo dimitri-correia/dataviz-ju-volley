@@ -1,8 +1,7 @@
-import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-DATASET_PATH = "dataset_vnl_men_2024"
+from data_loader import load_attackers, load_blockers, load_players, load_servers
 
 
 def display_action_ranking(df, action_name, metric_key):
@@ -34,27 +33,27 @@ def display_action_ranking(df, action_name, metric_key):
 
 def show_ranking_by_action():
     """Display rankings based on volleyball actions (Attack, Block, Service)"""
-    
-    df_players = pd.read_csv(f"{DATASET_PATH}/Players.csv")
-    
+
+    df_players = load_players()
+
     tab1, tab2, tab3 = st.tabs(["Attack", "Block", "Service"])
-    
+
     with tab1:
-        df = pd.read_csv(f"{DATASET_PATH}/Attackers.csv")
+        df = load_attackers().copy()
         df = df.merge(df_players[['Name', 'Team', 'Position']], on=['Name', 'Team'], how='left')
         df = df[df['Position'].isin(['MB', 'O', 'OH'])]
         df = df.drop(columns=['Att_Attack', 'MAvg_Attack'], errors='ignore')
         display_action_ranking(df, "Attackers", "attack_metric")
-    
+
     with tab2:
-        df = pd.read_csv(f"{DATASET_PATH}/Blockers.csv")
+        df = load_blockers().copy()
         df = df.merge(df_players[['Name', 'Team', 'Position']], on=['Name', 'Team'], how='left')
         df = df[df['Position'].isin(['MB', 'O', 'OH', 'S'])]
         df = df.drop(columns=['Att_Block', 'MAvg_Block', 'Rebounds'], errors='ignore')
         display_action_ranking(df, "Blockers", "block_metric")
-    
+
     with tab3:
-        df = pd.read_csv(f"{DATASET_PATH}/Servers.csv")
+        df = load_servers().copy()
         df = df.merge(df_players[['Name', 'Team', 'Position']], on=['Name', 'Team'], how='left')
         df = df[~df['Position'].isin(['L'])]
         df = df.drop(columns=['Att_Serve', 'MAvg_Serve'], errors='ignore')
