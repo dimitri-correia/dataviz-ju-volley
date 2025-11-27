@@ -105,23 +105,27 @@ def get_outside_hitter_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
     return df[["Name", "Team", "Service Efficiency", "Attack Success", "Block Efficiency", "Reception Efficiency", "Dig Efficiency", "Overall Efficiency"]].dropna(subset=["Overall Efficiency"])
 
 
-def get_opposite_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
-    """Calculate efficiency metrics for Opposite players.
+def get_attacker_position_efficiency(df_players: pd.DataFrame, position_code: str) -> pd.DataFrame:
+    """Calculate efficiency metrics for attacker positions (Opposite, Middle Blocker).
 
     Metrics:
     - Service efficiency: aces / total serves
     - Attack success: successful attacks / total attacks
     - Block efficiency: successful blocks / total blocks
     - Dig efficiency: successful digs / total digs
+
+    Args:
+        df_players: DataFrame containing player information
+        position_code: Position code to filter by ("O" for Opposite, "MB" for Middle Blocker)
     """
-    opposites = df_players[df_players["Position"] == "O"][["Name", "Team"]].copy()
+    players = df_players[df_players["Position"] == position_code][["Name", "Team"]].copy()
 
     df_serve = load_servers()
     df_attack = load_attackers()
     df_block = load_blockers()
     df_dig = load_diggers()
 
-    df = opposites.merge(df_serve[["Name", "Team", "ServePoints", "TotalServeMade"]], on=["Name", "Team"], how="left")
+    df = players.merge(df_serve[["Name", "Team", "ServePoints", "TotalServeMade"]], on=["Name", "Team"], how="left")
     df = df.merge(df_attack[["Name", "Team", "AttackPoints", "TotalAttackMade"]], on=["Name", "Team"], how="left")
     df = df.merge(df_block[["Name", "Team", "BlockPoints", "TotalBlockMade"]], on=["Name", "Team"], how="left")
     df = df.merge(df_dig[["Name", "Team", "Sf_Dig", "T_Dig"]], on=["Name", "Team"], how="left")
@@ -134,37 +138,16 @@ def get_opposite_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
     df["Overall Efficiency"] = df[["Service Efficiency", "Attack Success", "Block Efficiency", "Dig Efficiency"]].mean(axis=1)
 
     return df[["Name", "Team", "Service Efficiency", "Attack Success", "Block Efficiency", "Dig Efficiency", "Overall Efficiency"]].dropna(subset=["Overall Efficiency"])
+
+
+def get_opposite_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
+    """Calculate efficiency metrics for Opposite players."""
+    return get_attacker_position_efficiency(df_players, "O")
 
 
 def get_middle_blocker_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
-    """Calculate efficiency metrics for Middle Blockers.
-
-    Metrics:
-    - Service efficiency: aces / total serves
-    - Attack success: successful attacks / total attacks
-    - Block efficiency: successful blocks / total blocks
-    - Dig efficiency: successful digs / total digs
-    """
-    middle_blockers = df_players[df_players["Position"] == "MB"][["Name", "Team"]].copy()
-
-    df_serve = load_servers()
-    df_attack = load_attackers()
-    df_block = load_blockers()
-    df_dig = load_diggers()
-
-    df = middle_blockers.merge(df_serve[["Name", "Team", "ServePoints", "TotalServeMade"]], on=["Name", "Team"], how="left")
-    df = df.merge(df_attack[["Name", "Team", "AttackPoints", "TotalAttackMade"]], on=["Name", "Team"], how="left")
-    df = df.merge(df_block[["Name", "Team", "BlockPoints", "TotalBlockMade"]], on=["Name", "Team"], how="left")
-    df = df.merge(df_dig[["Name", "Team", "Sf_Dig", "T_Dig"]], on=["Name", "Team"], how="left")
-
-    df["Service Efficiency"] = calculate_efficiency(df["ServePoints"], df["TotalServeMade"])
-    df["Attack Success"] = calculate_efficiency(df["AttackPoints"], df["TotalAttackMade"])
-    df["Block Efficiency"] = calculate_efficiency(df["BlockPoints"], df["TotalBlockMade"])
-    df["Dig Efficiency"] = calculate_efficiency(df["Sf_Dig"], df["T_Dig"])
-
-    df["Overall Efficiency"] = df[["Service Efficiency", "Attack Success", "Block Efficiency", "Dig Efficiency"]].mean(axis=1)
-
-    return df[["Name", "Team", "Service Efficiency", "Attack Success", "Block Efficiency", "Dig Efficiency", "Overall Efficiency"]].dropna(subset=["Overall Efficiency"])
+    """Calculate efficiency metrics for Middle Blockers."""
+    return get_attacker_position_efficiency(df_players, "MB")
 
 
 def get_libero_efficiency(df_players: pd.DataFrame) -> pd.DataFrame:
